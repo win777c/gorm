@@ -132,8 +132,8 @@ func (s cubrid) LimitAndOffsetSQL(limit, offset interface{}) (sql string, err er
 
 func (s cubrid) HasForeignKey(tableName string, foreignKeyName string) bool {
 	var count int
-	currentDatabase, tableName := currentDatabaseAndTable(&s, tableName)
-	sql := fmt.Sprintf("SELECT count(*) FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE CONSTRAINT_SCHEMA='%s' AND TABLE_NAME='%s' AND CONSTRAINT_NAME='%s' AND CONSTRAINT_TYPE='FOREIGN KEY'", currentDatabase, tableName, foreignKeyName)
+	_, tableName := currentDatabaseAndTable(&s, tableName)
+	sql := fmt.Sprintf("SELECT COUNT(*) FROM  db_class a, db_index b WHERE a.class_name = b.class_name and a.class_type != 'VCLASS' and a.is_system_class = 'NO' and a.class_name != '_cub_schema_comments' and b.is_primary_key = 'NO' AND a.class_name = '%s' AND b.index_name = '%s' and b.is_foreign_key = 'YES'", tableName, foreignKeyName)
 	s.db.QueryRow(sql).Scan(&count)
 	return count > 0
 }
