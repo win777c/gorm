@@ -11,7 +11,7 @@ import (
 	"unicode/utf8"
 )
 
-// var mysqlIndexRegex = regexp.MustCompile(`^(.+)\((\d+)\)$`)
+var cubridIndexRegex = regexp.MustCompile(`^(.+)\((\d+)\)$`)
 
 type cubrid struct {
 	commonDialect
@@ -45,47 +45,19 @@ func (s *cubrid) DataTypeOf(field *StructField) string {
 		switch dataValue.Kind() {
 		case reflect.Bool:
 			sqlType = "boolean"
-		case reflect.Int8:
-			if s.fieldCanAutoIncrement(field) {
-				field.TagSettingsSet("AUTO_INCREMENT", "AUTO_INCREMENT")
-				sqlType = "tinyint AUTO_INCREMENT"
-			} else {
-				sqlType = "tinyint"
-			}
-		case reflect.Int, reflect.Int16, reflect.Int32:
+		case reflect.Int8, reflect.Uint8, reflect.Int, reflect.Int16, reflect.Int32, reflect.Uint, reflect.Uint16, reflect.Uint32, reflect.Uintptr:
 			if s.fieldCanAutoIncrement(field) {
 				field.TagSettingsSet("AUTO_INCREMENT", "AUTO_INCREMENT")
 				sqlType = "int AUTO_INCREMENT"
 			} else {
 				sqlType = "int"
 			}
-		case reflect.Uint8:
-			if s.fieldCanAutoIncrement(field) {
-				field.TagSettingsSet("AUTO_INCREMENT", "AUTO_INCREMENT")
-				sqlType = "tinyint unsigned AUTO_INCREMENT"
-			} else {
-				sqlType = "tinyint unsigned"
-			}
-		case reflect.Uint, reflect.Uint16, reflect.Uint32, reflect.Uintptr:
-			if s.fieldCanAutoIncrement(field) {
-				field.TagSettingsSet("AUTO_INCREMENT", "AUTO_INCREMENT")
-				sqlType = "int unsigned AUTO_INCREMENT"
-			} else {
-				sqlType = "int unsigned"
-			}
-		case reflect.Int64:
+		case reflect.Int64, reflect.Uint64:
 			if s.fieldCanAutoIncrement(field) {
 				field.TagSettingsSet("AUTO_INCREMENT", "AUTO_INCREMENT")
 				sqlType = "bigint AUTO_INCREMENT"
 			} else {
 				sqlType = "bigint"
-			}
-		case reflect.Uint64:
-			if s.fieldCanAutoIncrement(field) {
-				field.TagSettingsSet("AUTO_INCREMENT", "AUTO_INCREMENT")
-				sqlType = "bigint unsigned AUTO_INCREMENT"
-			} else {
-				sqlType = "bigint unsigned"
 			}
 		case reflect.Float32, reflect.Float64:
 			sqlType = "double"
@@ -93,7 +65,7 @@ func (s *cubrid) DataTypeOf(field *StructField) string {
 			if size > 0 && size < 65532 {
 				sqlType = fmt.Sprintf("varchar(%d)", size)
 			} else {
-				sqlType = "longtext"
+				sqlType = "varchar"
 			}
 		case reflect.Struct:
 			if _, ok := dataValue.Interface().(time.Time); ok {
@@ -219,7 +191,7 @@ func (s cubrid) BuildKeyName(kind, tableName string, fields ...string) string {
 
 // NormalizeIndexAndColumn returns index name and column name for specify an index prefix length if needed
 func (cubrid) NormalizeIndexAndColumn(indexName, columnName string) (string, string) {
-	submatch := mysqlIndexRegex.FindStringSubmatch(indexName)
+	submatch := cubridIndexRegex.FindStringSubmatch(indexName)
 	if len(submatch) != 3 {
 		return indexName, columnName
 	}
