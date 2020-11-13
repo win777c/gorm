@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
+	"regexp"
 )
 
 var cubridIndexRegex = regexp.MustCompile(`^(.+)\((\d+)\)$`)
@@ -132,7 +133,7 @@ func (s cubrid) LimitAndOffsetSQL(limit, offset interface{}) (sql string, err er
 
 func (s cubrid) HasForeignKey(tableName string, foreignKeyName string) bool {
 	var count int
-	_, tableName := currentDatabaseAndTable(&s, tableName)
+	_, tableName = currentDatabaseAndTable(&s, tableName)
 	sql := fmt.Sprintf("SELECT COUNT(*) FROM  db_class a, db_index b WHERE a.class_name = b.class_name and a.class_type != 'VCLASS' and a.is_system_class = 'NO' and a.class_name != '_cub_schema_comments' and b.is_primary_key = 'NO' AND a.class_name = '%s' AND b.index_name = '%s' and b.is_foreign_key = 'YES'", tableName, foreignKeyName)
 	s.db.QueryRow(sql).Scan(&count)
 	return count > 0
