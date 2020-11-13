@@ -27,6 +27,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	_  "github.com/win777c/cubrid-go"
 	"github.com/jinzhu/now"
 )
 
