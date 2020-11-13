@@ -71,6 +71,11 @@ func OpenTestConnection() (db *gorm.DB, err error) {
 			dbDSN = "sqlserver://gorm:LoremIpsum86@localhost:9930?database=gorm"
 		}
 		db, err = gorm.Open("mssql", dbDSN)
+	case "cubrid":
+		if dbDSN == "" {
+			dbDSN = "cci:CUBRID:localhost:43000:demodb:dba::"
+		}
+		db, err = gorm.Open("cubrid", dbDSN)
 	default:
 		fmt.Println("testing sqlite3...")
 		db, err = gorm.Open("sqlite3", filepath.Join(os.TempDir(), "gorm.db"))
